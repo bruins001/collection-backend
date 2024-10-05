@@ -6,6 +6,7 @@ namespace collection_backend.Repositories
     public interface IGenericRespository<T>
     {
         Task<IEnumerable<T>> GetAllAsync();
+        Task<object> GetToolPageAsync(int page = 1, int limit = 20, string orderBy = "");
         Task<IEnumerable<T>?> GetBulkByIdAsync(IEnumerable<int> ids);
         Task<T?> GetOneByIdAsync(int id);
         Task<T> InsertOneAsync(T tool);

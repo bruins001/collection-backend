@@ -36,6 +36,61 @@ namespace collection_backend.Repositories
             return await _context.Tools.ToListAsync();
         }
 
+        public async Task<object> GetToolPageAsync(int page = 1, int size = 20, string orderBy = "")
+        {
+            if (page <= 0)
+            {
+                throw new BadHttpRequestException($"Page number must be greater then 0 current page is {page}.");
+            }
+
+            if (size <= 0)
+            {
+                throw new BadHttpRequestException($"Page size must be greater then 0 current size is {size}.");
+            }
+
+            if (size > 1000)
+            {
+                throw new BadHttpRequestException($"Page size can't be greater then 1000 current size is {size}.");
+            }
+
+            int pageCount = _context.Tools.Count();
+            double totalPages = Math.Ceiling((double) pageCount / size);
+
+            if (page > totalPages)
+            {
+                throw new BadHttpRequestException($"Page {page} doesn't exist.");
+            }
+
+            int? nextPage = (page + 1) <= totalPages ? page + 1 : null;
+            int? prevPage = (page - 1) >= 1 ? page - 1 : null;
+            var query = _context.Tools.Distinct();
+
+            switch (orderBy.ToLower())
+            {
+                case "name":
+                    query = query.OrderBy(tool => tool.Name);
+                    break;
+                case "type":
+                    query = query.OrderBy(tool => tool.Type);
+                    break;
+                case "electric":
+                    query = query.OrderBy(tool => tool.Electric);
+                    break;
+                case "productcode":
+                    query = query.OrderBy(tool => tool.ProductCode);
+                    break;
+                default:
+                    query = query.OrderBy(tool => tool.Name);
+                    break;
+            }
+
+            IEnumerable<Tool> tools = await query.Skip((page - 1) * size).Take(size).ToListAsync();
+            var pagenation = new { total_records = pageCount, current_page = page,
+                total_pages = totalPages, next_page = nextPage, prev_page = prevPage };
+
+            return new { data = tools, pagenation };
+        }
+
         public async Task<IEnumerable<Tool>?> GetBulkByIdAsync(IEnumerable<int> ids)
         {
             return await _context.Tools.Where(tool => ids.Contains(tool.Id)).ToListAsync();

@@ -1,6 +1,7 @@
 ﻿using collection_backend.Models;
 using collection_backend.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using System.Drawing;
 
 namespace collection_backend.Controllers
 {
@@ -16,9 +17,19 @@ namespace collection_backend.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Tool>>> GetAllTools()
+        public async Task<ActionResult<IEnumerable<Tool>>> GetToolPage(int page = 1, int limit = 20, string orderBy = "")
         {
-            IEnumerable<Tool> tools = await _repository.GetAllAsync();
+            if (page <= 0)
+            {
+                throw new BadHttpRequestException($"Page number must be greater then 0 current page is {page}.");
+            }
+
+            if (limit <= 0)
+            {
+                throw new BadHttpRequestException($"Limit must be greater then 0 current limit is {limit}.");
+            }
+
+            var tools = await _repository.GetToolPageAsync(page, limit, orderBy);
             return Ok(tools);
         }
 
