@@ -1,7 +1,6 @@
 ﻿using collection_backend.Models;
 using collection_backend.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using System.Drawing;
 
 namespace collection_backend.Controllers
 {
@@ -47,6 +46,11 @@ namespace collection_backend.Controllers
         [HttpGet("bulk")]
         public async Task<ActionResult<IEnumerable<Tool>>> GetToolsById([FromQuery] IEnumerable<int> ids)
         {
+            if (ids.Count() > 1000)
+            { // Don't want to make requests too large
+                return BadRequest($"Get request too large. Maximum size of get is 1000 current size is { ids.Count() }.");
+            }
+
             IEnumerable<Tool>? tools = await _repository.GetBulkByIdAsync(ids);
             if (tools == null)
             {
@@ -65,6 +69,15 @@ namespace collection_backend.Controllers
         [HttpPost("bulk")]
         public async Task<ActionResult<IEnumerable<Tool>>> InsertToolBulk(IEnumerable<Tool> tools)
         {
+            if (tools.Count() > 1000)
+            { // Don't want to make requests too large
+                return BadRequest($"Update request too large. Maximum size of updates is 1000 current size is {tools.Count()}.");
+            }
+            else if (tools.Count() < 1)
+            {
+                return BadRequest("No tools were provided.");
+            }
+
             await _repository.InsertBulkAsync(tools);
             return CreatedAtAction(nameof(GetToolsById), new { ids = tools.Select(tool => tool.Id) }, tools);
         }
@@ -72,9 +85,14 @@ namespace collection_backend.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<IEnumerable<Tool>>> UpdateTool(int id, Tool tool)
         {
-            if (tool.Id == 0)
+            if (id != tool.Id)
             {
-                return BadRequest();
+                return BadRequest("Id mismatch.");
+            }
+            
+            if (tool.Id <= 0)
+            {
+                return BadRequest("No valid id was provided.");
             }
 
             await _repository.UpdateOneAsync(tool);
@@ -90,6 +108,15 @@ namespace collection_backend.Controllers
                 return BadRequest();
             }
 
+            if (tools.Count() > 1000)
+            { // Don't want to make requests too large
+                return BadRequest($"Update request too large. Maximum size of updates is 1000 current size is {tools.Count()}.");
+            }
+            else if (tools.Count() < 1)
+            {
+                return BadRequest("No valid ids were provided.");
+            }
+
             await _repository.UpdateBulkAsync(tools);
 
             return Ok(tools);
@@ -98,13 +125,31 @@ namespace collection_backend.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteTool(int id)
         {
+            if (id <= 0)
+            {
+                return BadRequest("No valid ids were provided.");
+            }
+
             await _repository.DeleteOneByIdAsync(id);
             return NoContent();
         }
 
         [HttpDelete("bulk")]
-        public async Task<IActionResult> DeleteToolBulk(int[] ids)
+        public async Task<IActionResult> DeleteToolBulk(IEnumerable<int> ids)
         {
+            // The id 0 doesn't do anything and the database query shouldn't execute when no valid id is provided
+            ids = ids.Where(id => id > 0).ToList();
+            
+            
+            if (ids.Count() > 1000)
+            { // Don't want to make requests too large
+                return BadRequest($"Delete request too large. Maximum size of deletes is 1000 current size is { ids.Count() }.");
+            }
+            else if (ids.Count() < 1)
+            {
+                return BadRequest("No valid ids were provided.");
+            }
+
             await _repository.DeleteBulkByIdAsync(ids);
             return NoContent();
         }

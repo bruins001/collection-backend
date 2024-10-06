@@ -13,15 +13,31 @@ namespace collection_backend.Repositories
             _context = context;
         }
 
-        public async Task DeleteBulkByIdAsync(int[] id)
+        public async Task DeleteBulkByIdAsync(IEnumerable<int> ids)
         {
-            IEnumerable<Tool>? tools = await _context.Tools.Where(tool => id.Contains(tool.Id)).ToListAsync();
+            ids = ids.Where(id => id > 0).ToList();
+            
+            if (ids.Count() > 1000)
+            { // Don't want to make requests too large
+                throw new BadHttpRequestException($"Maximum size of delete requests is 1000 current size is { ids.Count() }.");
+            }
+            else if (ids.Count() < 1)
+            {
+                throw new BadHttpRequestException("No valid ids were provided.");
+            }
+
+            IEnumerable<Tool>? tools = await _context.Tools.Where(tool => ids.Contains(tool.Id)).ToListAsync();
             _context.RemoveRange(tools);
             await _context.SaveChangesAsync();
         }
 
         public async Task DeleteOneByIdAsync(int id)
         {
+            if (id <= 0)
+            {
+                throw new BadHttpRequestException("No valid ids were provided.");
+            }
+            
             Tool? tool = await _context.Tools.FindAsync(id);
             if (tool == null)
             {
@@ -49,7 +65,7 @@ namespace collection_backend.Repositories
             }
 
             if (size > 1000)
-            {
+            { // Don't want to make the requests too large
                 throw new BadHttpRequestException($"Page size can't be greater then 1000 current size is {size}.");
             }
 
@@ -93,6 +109,21 @@ namespace collection_backend.Repositories
 
         public async Task<IEnumerable<Tool>?> GetBulkByIdAsync(IEnumerable<int> ids)
         {
+            if (ids.Count() > 1000)
+            { // Don't want to make requests too large
+                throw new BadHttpRequestException($"Maximum size of get requests is 1000 current size is { ids.Count() }.");
+            }
+            else if (ids.Count() < 1)
+            {
+                throw new BadHttpRequestException("No valid ids were provided.");
+            }
+
+            IEnumerable<Tool> tools = await _context.Tools.Where(tool => ids.Contains(tool.Id)).ToListAsync();
+            if (tools.Count() < 1)
+            {
+                throw new KeyNotFoundException($"Couldn't find any items from ids: {ids}.");
+            }
+
             return await _context.Tools.Where(tool => ids.Contains(tool.Id)).ToListAsync();
         }
 
@@ -103,6 +134,15 @@ namespace collection_backend.Repositories
 
         public async Task<IEnumerable<Tool>> InsertBulkAsync(IEnumerable<Tool> tools)
         {
+            if (tools.Count() > 1000)
+            { // Don't want to make requests too large
+                throw new BadHttpRequestException($"Maximum size of insertions is 1000 current size is { tools.Count() }.");
+            }
+            else if (tools.Count() < 1)
+            {
+                throw new BadHttpRequestException("No tools were provided.");
+            }
+
             await _context.Tools.AddRangeAsync(tools);
             await _context.SaveChangesAsync();
             return tools;
@@ -117,6 +157,11 @@ namespace collection_backend.Repositories
 
         public async Task<IEnumerable<Tool>> UpdateBulkAsync(IEnumerable<Tool> tools)
         {
+            if (tools.Count() > 1000)
+            { // Don't want to make requests too large
+                throw new BadHttpRequestException($"Maximum size of updates is 1000 current size is { tools.Count() }.");
+            }
+
             try
             {
                 _context.Tools.UpdateRange(tools);
@@ -133,6 +178,11 @@ namespace collection_backend.Repositories
 
         public async Task<Tool> UpdateOneAsync(Tool tool)
         {
+            if (tool.Id <= 0)
+            {
+                throw new BadHttpRequestException("No valid id was provided.");
+            }
+
             try
             {
                 _context.Tools.Update(tool);
