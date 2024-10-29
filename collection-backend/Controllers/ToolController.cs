@@ -1,5 +1,6 @@
 ﻿using collection_backend.Models;
 using collection_backend.Repositories;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace collection_backend.Controllers
@@ -62,6 +63,11 @@ namespace collection_backend.Controllers
         [HttpPost]
         public async Task<ActionResult<Tool>> InsertTool(Tool tool)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            
             await _repository.InsertOneAsync(tool);
             return CreatedAtAction(nameof(GetToolsById), new { ids = tool.Id }, tool);
         }
@@ -69,7 +75,12 @@ namespace collection_backend.Controllers
         [HttpPost("bulk")]
         public async Task<ActionResult<IEnumerable<Tool>>> InsertToolBulk(IEnumerable<Tool> tools)
         {
-            if (tools.Count() > 1000)
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+        if (tools.Count() > 1000)
             { // Don't want to make requests too large
                 return BadRequest($"Update request too large. Maximum size of updates is 1000 current size is {tools.Count()}.");
             }
@@ -85,6 +96,11 @@ namespace collection_backend.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<IEnumerable<Tool>>> UpdateTool(int id, Tool tool)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            
             if (id != tool.Id)
             {
                 return BadRequest("Id mismatch.");
@@ -103,6 +119,11 @@ namespace collection_backend.Controllers
         [HttpPut("bulk")]
         public async Task<ActionResult<IEnumerable<Tool>>> UpdateToolBulk(IEnumerable<Tool> tools)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            
             if (tools.Select(tool => tool.Id).Contains(0))
             {
                 return BadRequest();
