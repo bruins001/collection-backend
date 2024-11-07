@@ -1,4 +1,5 @@
-﻿using collection_backend.Models;
+﻿using collection_backend.Data.QueryParameters;
+using collection_backend.Models;
 using collection_backend.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,7 +35,7 @@ namespace collection_backend.Controllers
         }
 
         [HttpGet("bulk")]
-        public async Task<ActionResult<IEnumerable<Tool>>> GetToolsById([FromQuery] IEnumerable<int> ids)
+        public async Task<ActionResult<IEnumerable<Tool>>> GetToolsById([FromQuery] IEnumerable<int> ids, [FromQuery] ToolQueryParameters parameters)
         {
             IEnumerable<Tool>? tools = await _repository.GetBulkByIdAsync(ids);
             if (tools == null)
