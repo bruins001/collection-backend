@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace collection_backend.Repositories
 {
-    public class ToolRepository : IGenericRespository<Tool>
+    public class ToolRepository : IToolRepository
     {
         private readonly AppDbContext _context;
 

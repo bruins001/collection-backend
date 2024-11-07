@@ -17,7 +17,7 @@ namespace collection_backend
             );
 
             // Add services to the container.
-            builder.Services.AddScoped<IGenericRespository<Tool>, ToolRepository>();
+            builder.Services.AddScoped<IToolRepository, ToolRepository>();
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

@@ -9,8 +9,8 @@ namespace collection_backend.Controllers
     public class ToolController : ControllerBase
     {
 
-        private readonly IGenericRespository<Tool> _repository;
-        public ToolController(IGenericRespository<Tool> repository)
+        private readonly IToolRepository _repository;
+        public ToolController(IToolRepository repository)
         {
             _repository = repository;
         }
