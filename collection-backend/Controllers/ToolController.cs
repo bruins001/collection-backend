@@ -17,9 +17,9 @@ namespace collection_backend.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Tool>>> GetAllTools()
+        public async Task<ActionResult<IEnumerable<Tool>>> GetAllTools([FromQuery] ToolQueryParameters queryParameters)
         {
-            IEnumerable<Tool> tools = await _repository.GetAllAsync();
+            IEnumerable<Tool> tools = await _repository.GetAllAsync(queryParameters);
             return Ok(tools);
         }
 

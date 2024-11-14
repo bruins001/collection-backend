@@ -1,5 +1,8 @@
 ﻿using collection_backend.Data;
+using collection_backend.Data.Filters;
+using collection_backend.Data.QueryParameters;
 using collection_backend.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace collection_backend.Repositories
@@ -31,9 +34,10 @@ namespace collection_backend.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<Tool>> GetAllAsync()
+        public async Task<IEnumerable<Tool>> GetAllAsync([FromQuery] ToolQueryParameters queryParameters)
         {
-            return await _context.Tools.ToListAsync();
+            IQueryable<Tool> query = await ToolFilter.FilterAsync(_context.Tools.AsQueryable(), queryParameters);
+            return await query.ToListAsync();
         }
 
         public async Task<IEnumerable<Tool>?> GetBulkByIdAsync(IEnumerable<int> ids)

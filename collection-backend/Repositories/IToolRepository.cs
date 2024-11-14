@@ -1,10 +1,11 @@
-﻿using collection_backend.Models;
+﻿using collection_backend.Data.QueryParameters;
+using collection_backend.Models;
 
 namespace collection_backend.Repositories
 {
     public interface IToolRepository
     {
-        Task<IEnumerable<Tool>> GetAllAsync();
+        Task<IEnumerable<Tool>> GetAllAsync(ToolQueryParameters queryParameters);
         Task<IEnumerable<Tool>?> GetBulkByIdAsync(IEnumerable<int> ids);
         Task<Tool?> GetOneByIdAsync(int id);
         Task<Tool> InsertOneAsync(Tool tool);
