@@ -22,7 +22,7 @@ public class ToolFilter
 
             if (parameters.Description != null)
             {
-                query = query.Where(tool => tool.Description.Contains(parameters.Description));
+                query = query.Where(tool => tool.Description != null ? tool.Description.Contains(parameters.Description) : false);
             }
 
             if (parameters.Type != null)
@@ -32,12 +32,12 @@ public class ToolFilter
 
             if (parameters.ProductCode != null)
             {
-                query = query.Where(tool => tool.ProductCode.Contains(parameters.ProductCode));
+                query = query.Where(tool => tool.ProductCode != null ? tool.ProductCode.Contains(parameters.ProductCode) : false);
             }
 
             if (parameters.Ean != null)
             {
-                query = query.Where(tool => tool.EAN.Contains(parameters.Ean));
+                query = query.Where(tool => tool.Ean != null ? tool.Ean.Contains(parameters.Ean) : false);
             }
 
             return query;

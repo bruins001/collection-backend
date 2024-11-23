@@ -17,9 +17,19 @@ namespace collection_backend.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Tool>>> GetAllTools([FromQuery] ToolQueryParameters queryParameters)
+        public async Task<ActionResult<IEnumerable<Tool>>> GetAllTools([FromQuery] ToolQueryParameters queryParameters, int page = 1, int limit = 20, string orderBy = "")
         {
-            IEnumerable<Tool> tools = await _repository.GetAllAsync(queryParameters);
+            if (page <= 0)
+            {
+                throw new BadHttpRequestException($"Page number must be greater then 0 current page is {page}.");
+            }
+
+            if (limit <= 0)
+            {
+                throw new BadHttpRequestException($"Limit must be greater then 0 current limit is {limit}.");
+            }
+            
+            object tools = await _repository.GetToolPageAsync(queryParameters);
             return Ok(tools);
         }
 
