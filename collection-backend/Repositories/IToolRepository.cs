@@ -14,6 +14,6 @@ namespace collection_backend.Repositories
         Task<Tool> UpdateOneAsync(Tool tool);
         Task<IEnumerable<Tool>> UpdateBulkAsync(IEnumerable<Tool> tools);
         Task DeleteOneByIdAsync(int id);
-        Task DeleteBulkByIdAsync(int[] id);
+        Task DeleteBulkByIdAsync(IEnumerable<int> id);
     }
 }
