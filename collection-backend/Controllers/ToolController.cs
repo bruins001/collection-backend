@@ -17,7 +17,7 @@ namespace collection_backend.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Tool>>> GetAllTools([FromQuery] ToolQueryParameters queryParameters, int page = 1, int limit = 20, string orderBy = "")
+        public async Task<ActionResult<IEnumerable<Tool>>> GetAllTools([FromQuery] ToolQueryParameters queryParameters, int page = 1, int limit = 20)
         {
             if (page <= 0)
             {

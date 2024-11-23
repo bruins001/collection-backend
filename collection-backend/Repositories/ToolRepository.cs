@@ -45,7 +45,7 @@ namespace collection_backend.Repositories
             return await query.ToListAsync();
         }
 
-        public async Task<object> GetToolPageAsync(ToolQueryParameters queryParameters, int page = 1, int size = 20, string orderBy = "")
+        public async Task<object> GetToolPageAsync(ToolQueryParameters queryParameters, int page = 1, int size = 20)
         {
             if (page <= 0)
             {
@@ -74,7 +74,7 @@ namespace collection_backend.Repositories
             int? prevPage = (page - 1) >= 1 ? page - 1 : null;
             var query = _context.Tools.Distinct();
 
-            switch (orderBy.ToLower())
+            switch (queryParameters.OrderBy?.ToLower())
             {
                 case "name":
                     query = query.OrderBy(tool => tool.Name);

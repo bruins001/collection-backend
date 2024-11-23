@@ -1,6 +1,6 @@
 ﻿namespace collection_backend.Data.QueryParameters;
 
-public class ToolQueryParameters
+public class ToolQueryParameters: QueryParameters
 {
     // Custom properties
     public int? Id { get; set; } = null;
